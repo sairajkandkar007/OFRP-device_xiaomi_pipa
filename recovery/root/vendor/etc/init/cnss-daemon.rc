@@ -1,0 +1,8 @@
+# Matches pipa stock (init.qcom.rc): service cnss-daemon /system/vendor/bin/cnss-daemon -n -l
+service cnss-daemon /vendor/bin/cnss-daemon -n -l
+    user system
+    group system inet net_admin wifi
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/system/lib64:/odm/lib64:/bin
+    seclabel u:r:recovery:s0
+    capabilities NET_ADMIN
+    disabled
