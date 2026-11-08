@@ -1,0 +1,28 @@
+# DRAFT, untested. Import from init.recovery.qcom.rc (or your main recovery rc).
+
+# Skip this block if your tree already mounts modem at /vendor/firmware_mnt.
+on boot && property:ro.twrp.fastbootd=0
+    mkdir /vendor/firmware_mnt 0755 root root
+    mkdir /mnt/vendor/persist 0775 system system
+    wait /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} 10
+    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /vendor/firmware_mnt ro context=u:object_r:firmware_file:s0,uid=1000,gid=1000,fmask=0337,dmask=0227,shortname=lower
+    symlink /vendor/firmware_mnt /firmware
+    wait /dev/block/bootdevice/by-name/persist 10
+    mount ext4 /dev/block/bootdevice/by-name/persist /mnt/vendor/persist ro
+    restorecon_recursive /vendor/firmware_mnt
+    setprop twrp.firmware.mounted true
+
+on property:twrp.firmware.mounted=true && property:ro.twrp.fastbootd=0
+    mkdir /data/vendor/wifi 0770 wifi wifi
+    mkdir /data/vendor/wifi/sockets 0770 wifi wifi
+    # Stock does this in post-fs-data: enables WLAN cold boot calibration
+    write /sys/devices/platform/soc/b0000000.qcom,cnss-qca6390/fs_ready 1
+    start cnss-daemon
+    start wlan_setup
+
+on property:sys.fox.wlan.up=1
+    write /dev/kmsg "[wlan] starting wpa_supplicant"
+    mkdir /tmp/recovery 0777 root root
+    mkdir /tmp/recovery/sockets 0777 root root
+    restart wpa_supplicant
+    setprop sys.fox.wlan.up 0
