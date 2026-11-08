@@ -1,14 +1,3 @@
-#
-# Copyright (C) 2023 The Android Open Source Project
-# Copyright (C) 2023 SebaUbuntu's TWRP device tree generator
-#
-# SPDX-License-Identifier: Apache-2.0
-#
+PRODUCT_MAKEFILES := $(LOCAL_DIR)/twrp_pipa.mk
 
-PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/twrp_pipa.mk
-
-COMMON_LUNCH_CHOICES := \
-    twrp_pipa-user \
-    twrp_pipa-userdebug \
-    twrp_pipa-eng
+COMMON_LUNCH_CHOICES := twrp_pipa-bp2a-eng

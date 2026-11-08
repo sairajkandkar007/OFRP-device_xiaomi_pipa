@@ -1,57 +1,39 @@
-#
-# Copyright (C) 2023 The Android Open Source Project
-# Copyright (C) 2023 SebaUbuntu's TWRP device tree generator
-#
-# SPDX-License-Identifier: Apache-2.0
-#
-
 DEVICE_PATH := device/xiaomi/pipa
 
-# For building with minimal manifest
+# Build fixes for the 16.0 manifest
 ALLOW_MISSING_DEPENDENCIES := true
+BUILD_BROKEN_USES_NETWORK := true
+BUILD_BROKEN_DUP_RULES := true
+BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
+BUILD_BROKEN_MISSING_REQUIRED_MODULES := true
 
-# Architecture
+# Architecture (64-bit only, matches core_64_bit_only.mk)
 TARGET_ARCH := arm64
 TARGET_ARCH_VARIANT := armv8-a
 TARGET_CPU_ABI := arm64-v8a
-TARGET_CPU_ABI2 :=
 TARGET_CPU_VARIANT := generic
 TARGET_CPU_VARIANT_RUNTIME := kryo300
-
-TARGET_2ND_ARCH := arm
-TARGET_2ND_ARCH_VARIANT := armv8-a
-TARGET_2ND_CPU_ABI := armeabi-v7a
-TARGET_2ND_CPU_ABI2 := armeabi
-TARGET_2ND_CPU_VARIANT := generic
-TARGET_2ND_CPU_VARIANT_RUNTIME := cortex-a75
 
 # Power
 ENABLE_CPUSETS := true
 ENABLE_SCHEDBOOST := true
 
-# Bootloader
+# Bootloader / platform
 PRODUCT_PLATFORM := kona
 TARGET_BOOTLOADER_BOARD_NAME := kona
 TARGET_NO_BOOTLOADER := true
 TARGET_USES_UEFI := true
-
-# Platform
 TARGET_BOARD_PLATFORM := kona
 TARGET_BOARD_PLATFORM_GPU := qcom-adreno650
 QCOM_BOARD_PLATFORMS += kona
+BOARD_USES_QCOM_HARDWARE := true
 
-# Kernel
+# Kernel (prebuilt, boot header v3, recovery-as-boot)
 BOARD_KERNEL_IMAGE_NAME := Image
 BOARD_BOOT_HEADER_VERSION := 3
 BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
-
-# Kernel - prebuilt
 TARGET_FORCE_PREBUILT_KERNEL := true
-ifeq ($(TARGET_FORCE_PREBUILT_KERNEL),true)
 TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
-endif
-
-# Kernel dtb
 TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb
 
 # A/B
@@ -69,18 +51,16 @@ AB_OTA_PARTITIONS += \
     vendor \
     vendor_boot
 
-# Assert
-TARGET_OTA_ASSERT_DEVICE := pipa
-
 # AVB
 BOARD_AVB_ENABLE := true
 BOARD_AVB_MAKE_VBMETA_IMAGE_ARGS += --flags 3
+
 # Partitions
 BOARD_BOOTIMAGE_PARTITION_SIZE := 134217728
-# Dynamic Partition
+
+# Dynamic partitions
 BOARD_SUPER_PARTITION_SIZE := 9126805504
 BOARD_SUPER_PARTITION_GROUPS := qti_dynamic_partitions
-# BOARD_QTI_DYNAMIC_PARTITIONS_SIZ=BOARD_SUPER_PARTITION_SIZE - 2MB
 BOARD_QTI_DYNAMIC_PARTITIONS_SIZE := 9124708352
 BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST := system product odm system_ext vendor
 
@@ -99,41 +79,33 @@ TARGET_USERIMAGES_USE_F2FS := true
 TARGET_COPY_OUT_VENDOR := vendor
 
 # Recovery
-TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
+TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+TARGET_RECOVERY_QCOM_RTC_FIX := true
+TARGET_USES_MKE2FS := true
 
 # Display
 TARGET_SCREEN_DENSITY := 440
 TARGET_SCREEN_HEIGHT := 2880
 TARGET_SCREEN_WIDTH := 1800
-TW_FRAMERATE := 120
 
 # Crypto
 TW_INCLUDE_CRYPTO := true
-PLATFORM_VERSION := 16
-PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
-PLATFORM_SECURITY_PATCH := 2099-12-31
-VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
-BOOT_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
 
-# Tool
+# Tools
 TW_INCLUDE_REPACKTOOLS := true
 TW_INCLUDE_RESETPROP := true
 TW_INCLUDE_LIBRESETPROP := true
 TW_INCLUDE_LPDUMP := true
 TW_INCLUDE_LPTOOLS := true
 
-# TWRP Configuration
+# TWRP configuration
 TW_THEME := portrait_hdpi
-ifeq ($(TW_DEVICE_VERSION),)
-TW_DEVICE_VERSION=16.0
-endif
+TW_FRAMERATE := 120
 RECOVERY_SDCARD_ON_DATA := true
 BOARD_HAS_NO_REAL_SDCARD := true
-TARGET_RECOVERY_QCOM_RTC_FIX := true
 TW_EXCLUDE_DEFAULT_USB_INIT := true
 TW_EXTRA_LANGUAGES := true
 TW_INCLUDE_NTFS_3G := true
-TARGET_USES_MKE2FS := true
 TW_USE_TOOLBOX := true
 TW_INPUT_BLACKLIST := "hbtp_vm"
 TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel0-backlight/brightness"
@@ -144,13 +116,9 @@ TW_EXCLUDE_APEX := true
 TW_CUSTOM_CPU_TEMP_PATH := "/sys/class/thermal/thermal_zone1/temp"
 TW_BATTERY_SYSFS_WAIT_SECONDS := 5
 TW_BACKUP_EXCLUSIONS := /data/adb/ap,/data/adb/ksu
+TW_NO_HAPTICS := true
+TW_USE_SERIALNO_PROPERTY_FOR_DEVICE_ID := true
 
 # Debug
 TWRP_INCLUDE_LOGCAT := true
 TARGET_USES_LOGD := true
-
-# Haptics
-TW_NO_HAPTICS := true
-
-# Serialno
-TW_USE_SERIALNO_PROPERTY_FOR_DEVICE_ID := true

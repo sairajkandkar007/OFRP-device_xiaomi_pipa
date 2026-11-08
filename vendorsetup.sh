@@ -1,43 +1,58 @@
-export TW_DEFAULT_LANGUAGE="en_US"
-export LC_ALL="C"
-export ALLOW_MISSING_DEPENDENCIES=true
-echo -e "\x1b[96mpipa: Start adding OrangeFox Vars...\x1b[m"
-export OF_MAINTAINER=pipaDB
-export FOX_MAINTAINER_PATCH_VERSION=$(date +%y%m%d)
-export FOX_VARIANT=pipaDB-A16
-export FOX_USE_TAR_BINARY=1
-export FOX_USE_LZ4_BINARY=1
-export FOX_USE_ZSTD_BINARY=1
-export FOX_USE_DATE_BINARY=1
-export FOX_USE_BASH_SHELL=1
-export FOX_ASH_IS_BASH=1
-export FOX_ENABLE_APP_MANAGER=1
-export FOX_USE_XZ_UTILS=1
-export OF_ENABLE_LPTOOLS=1
-export FOX_RECOVERY_SYSTEM_PARTITION="/dev/block/mapper/system"
-export FOX_RECOVERY_VENDOR_PARTITION="/dev/block/mapper/vendor"
-export OF_USE_LZMA_COMPRESSION=1
-export OF_NO_RELOAD_AFTER_DECRYPTION=1
-export OF_NO_TREBLE_COMPATIBILITY_CHECK=1
-export FOX_RESET_SETTINGS=disabled
-export FOX_DELETE_AROMAFM=1
-export OF_USE_GREEN_LED=0
-export OF_SCREEN_H=2880
-export OF_ALLOW_DISABLE_NAVBAR=0
-export FOX_BUGGED_AOSP_ARB_WORKAROUND="1546300800"
-export TARGET_DEVICE_ALT="pipa"
-export OF_QUICK_BACKUP_LIST="/boot;/data;"
-export OF_IGNORE_LOGICAL_MOUNT_ERRORS=1
-export FOX_USE_UPDATED_MAGISKBOOT=1
-export FOX_PATCH_VBMETA_FLAG=1
-export FOX_VIRTUAL_AB_DEVICE=1
-export OF_DYNAMIC_FULL_SIZE=9126805504
-export OF_UNBIND_SDCARD_F2FS=1
-export OF_DEFAULT_TIMEZONE="TAIST-8;TAIDT"
-export OF_SUPPORT_VBMETA_AVB2_PATCHING=1
-export FOX_ALLOW_EARLY_SETTINGS_LOAD=1
-export OF_OPTIONS_LIST_NUM=11
-export OF_FORCE_USE_RECOVERY_FSTAB=1
-export OF_DEFAULT_KEYMASTER_VERSION=4.0
+#!/bin/bash
+# OrangeFox build vars: https://gitlab.com/OrangeFox/infrastructure/doc/-/blob/main/dev/build_vars.md
 
-echo -e "\x1b[96mpipa: When you see this message, all OrangeFox Vars have been added!\x1b[m"
+FDEVICE="pipa"
+
+fox_get_target_device() {
+    local src=""
+    if [ -n "$ZSH_VERSION" ]; then src="${(%):-%x}"
+    elif [ -n "$BASH_VERSION" ]; then src="${BASH_SOURCE[0]}"
+    else src="$0"
+    fi
+
+    if echo "$src" | grep -q "$FDEVICE"; then FOX_BUILD_DEVICE="$FDEVICE"
+    elif [ -n "$BASH_VERSION" ] && set | grep BASH_ARGV | grep -q -w "$FDEVICE"; then FOX_BUILD_DEVICE="$FDEVICE"
+    elif echo "$* $0" | grep -q -w "$FDEVICE"; then FOX_BUILD_DEVICE="$FDEVICE"
+    fi
+}
+
+if [ -z "$1" ] && [ -z "$FOX_BUILD_DEVICE" ]; then
+    fox_get_target_device "$@"
+fi
+
+if [ "$1" = "$FDEVICE" ] || [ "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
+    export TARGET_DEVICE_ALT="pipa"
+
+    # Binaries & tools
+    export FOX_USE_BUSYBOX_BINARY=1
+    export FOX_USE_BASH_SHELL=1
+    export FOX_USE_TAR_BINARY=1
+    export FOX_USE_SED_BINARY=1
+    export FOX_USE_XZ_UTILS=1
+    export FOX_USE_ZSTD_BINARY=1
+    export FOX_USE_LZ4_BINARY=1
+    export FOX_USE_DATE_BINARY=1
+    export FOX_USE_FSCK_EROFS_BINARY=1
+    export FOX_USE_PATCHELF_BINARY=1
+    export FOX_USE_GREP_BINARY=1
+    export FOX_ASH_IS_BASH=1
+    export FOX_BASH_TO_SYSTEM_BIN=1
+    export FOX_REPLACE_TOOLBOX_GETPROP=1
+
+    # Settings / data locations
+    export FOX_SETTINGS_ROOT_DIRECTORY="/data/recovery"
+    export FOX_MISCELLANEOUS_ROOT_DIRECTORY="/sdcard"
+    export FOX_ALLOW_EARLY_SETTINGS_LOAD=1
+
+    # Addons
+    export FOX_ENABLE_APP_MANAGER=1
+    export FOX_DELETE_AROMAFM=1
+
+    # A/B
+    export FOX_VIRTUAL_AB_DEVICE=1
+    export FOX_RECOVERY_SYSTEM_PARTITION="/dev/block/mapper/system"
+    export FOX_RECOVERY_VENDOR_PARTITION="/dev/block/mapper/vendor"
+
+    export FOX_USE_UPDATED_MAGISKBOOT=1
+    export LC_ALL="C"
+fi

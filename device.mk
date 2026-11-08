@@ -1,32 +1,46 @@
-#
-# Copyright (C) 2023 The Android Open Source Project
-# Copyright (C) 2023 SebaUbuntu's TWRP device tree generator
-#
-# SPDX-License-Identifier: Apache-2.0
-#
+# NOTE: merge with your existing device.mk instead of overwriting if it has extra lines.
+DEVICE_PATH := device/xiaomi/pipa
 
-LOCAL_PATH := device/xiaomi/pipa
+# Virtual A/B: pick to match stock (getprop ro.virtual_ab.compression.enabled)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
+# $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/compression_with_xor.mk)
 
-# Dynamic Partitions
-PRODUCT_USE_DYNAMIC_PARTITIONS := true
+$(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/developer_gsi_keys.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 
-# Fastbootd
-TW_INCLUDE_FASTBOOTD := true
+TARGET_OTA_ASSERT_DEVICE := pipa
 
-# API
-PRODUCT_TARGET_VNDK_VERSION := 31
-PRODUCT_SHIPPING_API_LEVEL := 30
-
-# A/B
-ENABLE_VIRTUAL_AB := true
-
-# Boot Control HAL
+# FastbootD support
 PRODUCT_PACKAGES += \
-    android.hardware.boot@1.1-impl-qti.recovery \
-    bootctrl.kona.recovery
+    android.hardware.fastboot@1.1-impl-mock \
+    fastbootd
 
-# Soong namespaces
-PRODUCT_SOONG_NAMESPACES += \
-    $(LOCAL_PATH)
+# Update engine
+PRODUCT_PACKAGES += \
+    update_engine \
+    update_engine_sideload \
+    update_verifier
 
-TWRP_REQUIRED_MODULES += miui_prebuilt
+# API (Pad 6 launched on Android 13)
+PRODUCT_SHIPPING_API_LEVEL := 33
+BOARD_SHIPPING_API_LEVEL := 33
+PRODUCT_TARGET_VNDK_VERSION := 33
+
+# Dynamic partitions
+PRODUCT_USE_DYNAMIC_PARTITIONS := true
+PRODUCT_BUILD_SUPER_PARTITION := false
+PRODUCT_CHARACTERISTICS := tablet,nosdcard
+
+# TWRP specifics
+TW_INCLUDE_WIFI := true
+TW_INCLUDE_CRYPTO_FBE := true
+TW_INCLUDE_FBE_METADATA_DECRYPT := true
+BOARD_USES_QCOM_FBE_DECRYPTION := true
+
+# Lets decryption work with any ROM version
+PLATFORM_VERSION := 99.87.36
+PLATFORM_VERSION_LAST_STABLE := $(PLATFORM_VERSION)
+PLATFORM_SECURITY_PATCH := 2127-12-31
+VENDOR_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
+BOOT_SECURITY_PATCH := $(PLATFORM_SECURITY_PATCH)
