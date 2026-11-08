@@ -76,3 +76,6 @@ service gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service-qt
     group root
     disabled
     seclabel u:r:recovery:s0
+
+# Load pipa recovery Wi-Fi services and firmware setup.
+import /init.recovery.wlan.rc
