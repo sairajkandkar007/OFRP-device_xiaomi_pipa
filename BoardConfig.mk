@@ -123,6 +123,6 @@ TW_BACKUP_EXCLUSIONS := /data/adb/ap,/data/adb/ksu
 TW_NO_HAPTICS := true
 TW_USE_SERIALNO_PROPERTY_FOR_DEVICE_ID := true
 
-# Debug
-TWRP_INCLUDE_LOGCAT := false
-TARGET_USES_LOGD := false
+# Debug (retain recovery logcat)
+TWRP_INCLUDE_LOGCAT := true
+TARGET_USES_LOGD := true
