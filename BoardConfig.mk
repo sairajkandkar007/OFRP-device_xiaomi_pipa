@@ -97,8 +97,8 @@ TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_LPDUMP := true
 TW_INCLUDE_LPTOOLS := true
 
-# Optional recovery components disabled to reduce ramdisk footprint
-TW_INCLUDE_REPACKTOOLS := false
+# Optional recovery components
+TW_INCLUDE_REPACKTOOLS := true
 TW_INCLUDE_RESETPROP := false
 TW_INCLUDE_LIBRESETPROP := false
 TW_EXTRA_LANGUAGES := false
