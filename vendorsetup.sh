@@ -23,6 +23,12 @@ fi
 if [ "$1" = "$FDEVICE" ] || [ "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
     export TARGET_DEVICE_ALT="pipa"
 
+    # OrangeFox 16.0 build size reduction
+    export OF_USE_LZMA_COMPRESSION=1
+    export FOX_VANILLA_BUILD=1
+    export OF_DISABLE_MIUI_SPECIFIC_FEATURES=1
+    export FOX_DRASTIC_SIZE_REDUCTION=1
+
     # Binaries & tools
     export FOX_USE_BUSYBOX_BINARY=1
     export FOX_USE_BASH_SHELL=1
