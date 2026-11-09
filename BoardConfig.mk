@@ -36,6 +36,9 @@ TARGET_FORCE_PREBUILT_KERNEL := true
 TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
 TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb
 
+# Reduce boot image size: compress recovery ramdisk with LZ4
+BOARD_RAMDISK_USE_LZ4 := true
+
 # A/B
 BOARD_USES_RECOVERY_AS_BOOT := true
 AB_OTA_UPDATER := true
