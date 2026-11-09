@@ -37,7 +37,7 @@ TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
 TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb
 
 # Boot image size optimization
-BOARD_RAMDISK_USE_LZ4 := true
+BOARD_RAMDISK_USE_LZMA := true
 
 # A/B
 BOARD_USES_RECOVERY_AS_BOOT := true
