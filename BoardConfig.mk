@@ -65,7 +65,6 @@ BOARD_QTI_DYNAMIC_PARTITIONS_SIZE := 9124708352
 BOARD_QTI_DYNAMIC_PARTITIONS_PARTITION_LIST := system product odm system_ext vendor
 
 # System as root
-BOARD_BUILD_SYSTEM_ROOT_IMAGE := false
 BOARD_ROOT_EXTRA_FOLDERS := bluetooth dsp firmware persist
 BOARD_SUPPRESS_SECURE_ERASE := true
 
