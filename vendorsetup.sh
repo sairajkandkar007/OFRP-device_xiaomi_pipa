@@ -46,9 +46,6 @@ if [ "$1" = "$FDEVICE" ] || [ "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
     export FOX_REPLACE_TOOLBOX_GETPROP=1
 
     # Settings / data locations
-    export FOX_SETTINGS_ROOT_DIRECTORY="/data/recovery"
-    export FOX_MISCELLANEOUS_ROOT_DIRECTORY="/sdcard"
-    export FOX_ALLOW_EARLY_SETTINGS_LOAD=1
 
     # Addons
     export FOX_ENABLE_APP_MANAGER=1
