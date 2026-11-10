@@ -1,0 +1,6 @@
+# Work around the vendor charger service crashing in recovery.
+# Keep it non-critical so init cannot reboot the device after repeated exits.
+service charger /system/bin/charger
+    override
+    seclabel u:r:recovery:s0
+    oneshot
