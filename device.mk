@@ -16,6 +16,12 @@ PRODUCT_PACKAGES += \
     android.hardware.fastboot@1.1-impl-mock \
     fastbootd
 
+# Boot control HAL (Qualcomm implementation)
+PRODUCT_PACKAGES += \
+    android.hardware.boot@1.1-impl-qti \
+    android.hardware.boot@1.1-impl-qti.recovery \
+    android.hardware.boot@1.1-service
+
 # Update engine
 PRODUCT_PACKAGES += \
     update_engine \
