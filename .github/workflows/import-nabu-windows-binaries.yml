@@ -1,0 +1,111 @@
+name: Import Nabu Windows binaries
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: import-nabu-binaries-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  import-binaries:
+    if: github.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Pipa device tree
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Check out pinned Nabu source
+        uses: actions/checkout@v4
+        with:
+          repository: ArKT-7/twrp_device_xiaomi_nabu
+          ref: 9bf1fd3b182d9884f7f9309c40e8376cdc8e37d4
+          path: nabu-source
+          persist-credentials: false
+
+      - name: Import exactly six verified binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          source_dir="nabu-source/recovery/root/system/bin"
+          destination_dir="recovery/root/system/bin"
+          files=(dmctl gdisk ntfsfix ntfsresize parted wimlib)
+
+          # Never overwrite any existing destination file.
+          for file in "${files[@]}"; do
+            if [[ -e "$destination_dir/$file" ]]; then
+              echo "::error::Destination already exists: $destination_dir/$file"
+              exit 1
+            fi
+            if [[ ! -f "$source_dir/$file" ]]; then
+              echo "::error::Missing source binary: $source_dir/$file"
+              exit 1
+            fi
+          done
+
+          mkdir -p "$destination_dir"
+          for file in "${files[@]}"; do
+            install -m 0755 "$source_dir/$file" "$destination_dir/$file"
+          done
+
+          cat > /tmp/expected-sha256 <<'EOF'
+          22139de8d76b62452faf0e0317ff2587c1fd8bd1c5a40a565f8815cc4827a01b  recovery/root/system/bin/dmctl
+          c2d1455157536eaa483ec1af1ba1ecc82e320b433397f882a72ac315537854e3  recovery/root/system/bin/gdisk
+          4b9fc0fcc9a040a132b599e033b6c68e7cf3243b4dc64efe83f9a15bc8115274  recovery/root/system/bin/ntfsfix
+          0eb4fc579cedab805894e331161f384d870510b8cfc4b9d27f0546a08396ba6f  recovery/root/system/bin/ntfsresize
+          0efab3de460510fd9033ba427d4b910eb6f99890efd30650a019cb6e30ae2c19  recovery/root/system/bin/parted
+          4245f5c16325e7db97f792b1ef4d7a8f29e88c5580918ccc37b9fe65e04423e4  recovery/root/system/bin/wimlib
+          EOF
+
+          sha256sum --check /tmp/expected-sha256
+          for file in "${files[@]}"; do
+            [[ "$(stat -c '%a' "$destination_dir/$file")" == "755" ]]
+          done
+
+          # Stage only the six requested files and reject any unexpected changes.
+          git add -- \
+            recovery/root/system/bin/dmctl \
+            recovery/root/system/bin/gdisk \
+            recovery/root/system/bin/ntfsfix \
+            recovery/root/system/bin/ntfsresize \
+            recovery/root/system/bin/parted \
+            recovery/root/system/bin/wimlib
+
+          expected_paths=$(printf '%s\n' \
+            recovery/root/system/bin/dmctl \
+            recovery/root/system/bin/gdisk \
+            recovery/root/system/bin/ntfsfix \
+            recovery/root/system/bin/ntfsresize \
+            recovery/root/system/bin/parted \
+            recovery/root/system/bin/wimlib | sort)
+          staged_paths=$(git diff --cached --name-only | sort)
+          if [[ "$staged_paths" != "$expected_paths" ]]; then
+            echo "::error::Staged file list differs from the six approved binaries."
+            git diff --cached --name-status
+            exit 1
+          fi
+
+          modes=$(git diff --cached --summary)
+          if [[ "$(printf '%s\n' "$modes" | grep -c 'create mode 100755' || true)" != "6" ]]; then
+            echo "::error::Expected six newly created executable files."
+            printf '%s\n' "$modes"
+            exit 1
+          fi
+
+      - name: Commit and push to the branch that dispatched this workflow
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "recovery: add gdisk, parted, wimlib, dmctl, ntfsfix, ntfsresize (from nabu mod-windows)"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
